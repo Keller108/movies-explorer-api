@@ -1,27 +1,44 @@
 {
-  "name": "backend",
+  "name": "movies-explorer-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend",
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "lint": "npx eslint ."
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Keller108/movies-explorer-api.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Nikita Isaev",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Keller108/movies-explorer-api/issues"
   },
   "homepage": "https://github.com/Keller108/movies-explorer-api#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "celebrate": "^15.0.0",
+    "dotenv": "^10.0.0",
+    "editorconfig": "^0.15.3",
+    "express": "^4.17.1",
+    "express-winston": "^4.1.0",
+    "helmet": "^4.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.13.2",
+    "regexp": "^1.0.0",
+    "validator": "^13.6.0",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.24.0",
+    "eslint-plugin-react": "^7.24.0",
     "nodemon": "^2.0.12"
   }
 }
