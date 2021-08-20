@@ -33,22 +33,22 @@ const postMovie = (req, res, next) => {
 };
 
 const deleteMovie = (req, res, next) => {
-  Movie.findById(req.params.movieId)
+  Movie.findById(req.params._id)
     .orFail(() => {
       throw new Error('IncorrectID');
     })
     .then((movie) => {
-      if (movie.owner.toString === req.user._id) {
+      if (movie.owner.toString() === req.user._id) {
         movie.remove();
         res.status(200).send({ message: 'Фильм успешно удален.' });
       } else {
-        throw new Forbidden('Недостаточно прав для удаления фильма');
+        throw new Forbidden('Недостаточно прав для удаления карточки');
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         throw new BadRequest('Фильм с указанным id не найден.');
-      } else if (err.name === 'IncorrectID') {
+      } else if (err.message === 'IncorrectID') {
         throw new NotFound('Фильм с указанным id не найден.');
       } else next(err);
     })

@@ -26,7 +26,7 @@ const getUserById = (req, res, next) => {
 
 const updateProfile = (req, res, next) => {
   const { name, email } = req.body;
-  User.findByIdAndUpdate(req.users._id,
+  User.findByIdAndUpdate(req.user._id,
     { name, email },
     {
       new: true,
@@ -34,7 +34,7 @@ const updateProfile = (req, res, next) => {
       upsert: false,
     })
     .orFail(() => {
-      throw new NotFound('Пользователь не найден');
+      throw new Error('IncorrectID');
     })
     .then((user) => {
       res.status(200).send(user);
@@ -42,7 +42,9 @@ const updateProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         throw new BadRequest('Данные пользователя не корректны');
-      }
+      } else if (err.message === 'IncorrectID') {
+        throw new NotFound('Пользователь не найден');
+      } else next(err);
     })
     .catch(next);
 };
