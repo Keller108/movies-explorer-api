@@ -43,6 +43,8 @@ const updateProfile = (req, res, next) => {
         throw new BadRequest('Данные пользователя не корректны');
       } else if (err.message === 'IncorrectID') {
         throw new NotFound('Пользователь не найден');
+      } else if (err.name === 'MongoError') {
+        throw new ConflictRequest('Указан некорректный email');
       } else next(err);
     })
     .catch(next);

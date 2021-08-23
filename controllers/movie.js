@@ -47,32 +47,25 @@ const postMovie = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequest('Вы не заполнили обязательные поля или данные не верны');
-      }
-    })
-    .catch(next);
+      } return next(err);
+    });
 };
 
 const deleteMovie = (req, res, next) => {
   Movie.findById(req.params._id)
-    .orFail(() => {
-      throw new Error('IncorrectID');
-    })
+    .orFail(new NotFound('Фильм с указанным _id не найден.'))
     .then((movie) => {
       if (movie.owner.toString() === req.user._id) {
-        movie.remove();
-        res.status(200).send({ message: 'Фильм успешно удален.' });
-      } else {
-        throw new Forbidden('Недостаточно прав для удаления карточки');
+        return movie.remove()
+          .then(() => res.status(200).send({ message: 'Фильм успешно удален.' }));
       }
+      throw new Forbidden('Нельзя удалять чужой фильм');
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new BadRequest('Фильм с указанным id не найден.');
-      } else if (err.message === 'IncorrectID') {
-        throw new NotFound('Фильм с указанным id не найден.');
-      } else next(err);
-    })
-    .catch(next);
+      if (err.kind === 'ObjectId') {
+        throw new BadRequest('Невалидный id фильма.');
+      } return next(err);
+    });
 };
 
 module.exports = {
