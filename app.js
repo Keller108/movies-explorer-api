@@ -6,7 +6,7 @@ const router = require('./routes/index');
 const { errorsHandling } = require('./middlewares/errors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const rateLimiter = require('./utils/rateLimiter');
-const { DATA_BASE, PORT } = require('./utils/config');
+const { DB, PORT } = require('./utils/config');
 require('dotenv').config();
 
 const app = express();
@@ -15,7 +15,7 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect(DATA_BASE, {
+mongoose.connect(DB, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
