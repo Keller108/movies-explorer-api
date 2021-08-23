@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 const Movie = require('../models/movie');
 const BadRequest = require('../errors/BadRequest');
 const Forbidden = require('../errors/Forbidden');
@@ -14,12 +13,33 @@ const getMovies = (req, res, next) => {
 
 const postMovie = (req, res, next) => {
   const {
-    country, director, duration, year, description, image, trailer, thumbnail, movieId, nameRU, nameEN,
+    country,
+    director,
+    duration,
+    year,
+    description,
+    image,
+    trailer,
+    thumbnail,
+    movieId,
+    nameRU,
+    nameEN,
   } = req.body;
   const ownerId = req.user._id;
 
   Movie.create({
-    country, director, duration, year, description, image, trailer, thumbnail, movieId, nameRU, nameEN, owner: ownerId,
+    country,
+    director,
+    duration,
+    year,
+    description,
+    image,
+    trailer,
+    thumbnail,
+    movieId,
+    nameRU,
+    nameEN,
+    owner: ownerId,
   })
     .then((movie) => {
       res.status(200).send(movie);
