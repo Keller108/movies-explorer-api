@@ -17,7 +17,7 @@ const { JWT_SECRET } = require('../utils/config');
 
 const getUserById = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(next(new NotFound(userNotFoundTxt)))
+    .orFail(new NotFound(userNotFoundTxt))
     .then((user) => {
       res.status(200).send(user);
     })
@@ -37,17 +37,17 @@ const updateProfile = (req, res, next) => {
       runValidators: true,
       upsert: false,
     })
-    .orFail(new NotFound(userNotFoundTxt)
-      .then((user) => {
-        res.status(200).send(user);
-      })
-      .catch((err) => {
-        if (err.name === 'ValidationError' || err.name === 'CastError') {
-          next(new BadRequest(wrongUserDataTxt));
-        } else if (err.name === 'MongoError') {
-          next(new ConflictRequest(userExistsTxt));
-        } return next(err);
-      }));
+    .orFail(new NotFound(userNotFoundTxt))
+    .then((user) => {
+      res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        next(new BadRequest(wrongUserDataTxt));
+      } else if (err.name === 'MongoError') {
+        next(new ConflictRequest(userExistsTxt));
+      } next(err);
+    });
 };
 
 const createUser = (req, res, next) => {
@@ -91,9 +91,7 @@ const login = (req, res, next) => {
     throw new NotFound(userNotFoundTxt);
   } else {
     User.findOne({ email }).select('+password')
-      .orFail(() => {
-        throw new BadRequest(wrongUserDataTxt);
-      })
+      .orFail(new BadRequest(wrongUserDataTxt))
       .then((user) => {
         bcrypt.compare(password, user.password)
           .then((matched) => {
