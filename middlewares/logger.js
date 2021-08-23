@@ -1,4 +1,3 @@
-/* eslint-disable import/no-unresolved */
 const winston = require('winston');
 const expressWinston = require('express-winston');
 

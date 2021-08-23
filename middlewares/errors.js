@@ -1,4 +1,3 @@
-/* eslint-disable no-nested-ternary */
 const errorsHandling = (err, req, res, next) => {
   const { statusCode = 500, message } = err;
 
