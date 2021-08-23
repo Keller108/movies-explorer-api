@@ -2,6 +2,12 @@ const Movie = require('../models/movie');
 const BadRequest = require('../errors/BadRequest');
 const Forbidden = require('../errors/Forbidden');
 const NotFound = require('../errors/NotFound');
+const {
+  validationErrTxt,
+  movieNotFoundTxt,
+  movieForbiddenTxt,
+  movieNotValidTxt,
+} = require('../utils/errorMessages');
 
 const getMovies = (req, res, next) => {
   Movie.find({})
@@ -46,24 +52,23 @@ const postMovie = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequest('Вы не заполнили обязательные поля или данные не верны');
+        next(new BadRequest(validationErrTxt));
       } return next(err);
     });
 };
 
 const deleteMovie = (req, res, next) => {
   Movie.findById(req.params._id)
-    .orFail(new NotFound('Фильм с указанным _id не найден.'))
+    .orFail(new NotFound(movieNotFoundTxt))
     .then((movie) => {
       if (movie.owner.toString() === req.user._id) {
         return movie.remove()
           .then(() => res.status(200).send({ message: 'Фильм успешно удален.' }));
-      }
-      throw new Forbidden('Нельзя удалять чужой фильм');
+      } return next(new Forbidden(movieForbiddenTxt));
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        throw new BadRequest('Невалидный id фильма.');
+        next(new BadRequest(movieNotValidTxt));
       } return next(err);
     });
 };

@@ -1,26 +1,31 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
-
-const { NODE_ENV, JWT_SECRET } = process.env;
 const NotFound = require('../errors/NotFound');
 const BadRequest = require('../errors/BadRequest');
 const ConflictRequest = require('../errors/ConflictRequest');
 
+const {
+  userNotFoundTxt,
+  castErrTxt,
+  wrongUserDataTxt,
+  userExistsTxt,
+  validationErrTxt,
+} = require('../utils/errorMessages');
+
+const { JWT_SECRET } = require('../utils/config');
+
 const getUserById = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(() => {
-      throw new NotFound('Пользователя с таким Id не существует');
-    })
+    .orFail(next(new NotFound(userNotFoundTxt)))
     .then((user) => {
       res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequest('Некорректный Id');
-      }
-    })
-    .catch(next);
+        next(new BadRequest(castErrTxt));
+      } return next(err);
+    });
 };
 
 const updateProfile = (req, res, next) => {
@@ -32,22 +37,17 @@ const updateProfile = (req, res, next) => {
       runValidators: true,
       upsert: false,
     })
-    .orFail(() => {
-      throw new Error('IncorrectID');
-    })
-    .then((user) => {
-      res.status(200).send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        throw new BadRequest('Данные пользователя не корректны');
-      } else if (err.message === 'IncorrectID') {
-        throw new NotFound('Пользователь не найден');
-      } else if (err.name === 'MongoError') {
-        throw new ConflictRequest('Указан некорректный email');
-      } else next(err);
-    })
-    .catch(next);
+    .orFail(new NotFound(userNotFoundTxt)
+      .then((user) => {
+        res.status(200).send(user);
+      })
+      .catch((err) => {
+        if (err.name === 'ValidationError' || err.name === 'CastError') {
+          next(new BadRequest(wrongUserDataTxt));
+        } else if (err.name === 'MongoError') {
+          next(new ConflictRequest(userExistsTxt));
+        } return next(err);
+      }));
 };
 
 const createUser = (req, res, next) => {
@@ -57,7 +57,7 @@ const createUser = (req, res, next) => {
 
   User.findOne({ email }).then((usr) => {
     if (usr) {
-      throw new ConflictRequest('Пользователь с таким email уже существует!');
+      throw new ConflictRequest(userExistsTxt);
     }
 
     bcrypt.hash(password, 10)
@@ -72,13 +72,13 @@ const createUser = (req, res, next) => {
         })
         .catch((err) => {
           if (err.name === 'ValidationError') {
-            throw new BadRequest('Ошибка при создании пользователя');
-          } else next(err);
+            next(new BadRequest(validationErrTxt));
+          } return next(err);
         }))
       .catch((err) => {
         if (err.name === 'ValidationError') {
-          throw new BadRequest('Некорректные данные');
-        } else next(err);
+          next(new BadRequest(validationErrTxt));
+        } return next(err);
       });
   })
     .catch(next);
@@ -88,19 +88,19 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    throw new NotFound('Указанные email или пароль не найдены');
+    throw new NotFound(userNotFoundTxt);
   } else {
     User.findOne({ email }).select('+password')
       .orFail(() => {
-        throw new BadRequest('Некорректный email');
+        throw new BadRequest(wrongUserDataTxt);
       })
       .then((user) => {
         bcrypt.compare(password, user.password)
           .then((matched) => {
             if (!matched) {
-              throw new BadRequest('Указан неправильный email или пароль.');
+              throw new BadRequest(wrongUserDataTxt);
             } else {
-              const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'my-super-duper-secret', { expiresIn: '7d' });
+              const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
               res.status(201).send({ token });
             }
           })

@@ -3,6 +3,7 @@ const { celebrate, Joi } = require('celebrate');
 const auth = require('../middlewares/auth');
 const { login, createUser } = require('../controllers/user');
 const NotFound = require('../errors/NotFound');
+const { notFoundTxt } = require('../utils/errorMessages');
 
 router.post('/signup', celebrate({
   body: Joi.object().keys({
@@ -22,8 +23,6 @@ router.post('/signin', celebrate({
 router.use('/', auth, require('./user'));
 router.use('/', auth, require('./movie'));
 
-router.all('*', (req, res) => {
-  throw new NotFound('Ресурс не найден');
-});
+router.all('*', (req, res, next) => next(new NotFound(notFoundTxt)));
 
 module.exports = router;

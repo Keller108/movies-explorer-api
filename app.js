@@ -6,9 +6,8 @@ const router = require('./routes/index');
 const { errorsHandling } = require('./middlewares/errors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const rateLimiter = require('./utils/rateLimiter');
+const { DATA_BASE, PORT } = require('./utils/config');
 require('dotenv').config();
-
-const { PORT = 3000 } = process.env;
 
 const app = express();
 app.use(helmet());
@@ -16,7 +15,7 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://localhost:27017/moviesdb', {
+mongoose.connect(DATA_BASE, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
