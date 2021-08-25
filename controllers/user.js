@@ -74,12 +74,7 @@ const createUser = (req, res, next) => {
           if (err.name === 'ValidationError') {
             next(new BadRequest(validationErrTxt));
           } return next(err);
-        }))
-      .catch((err) => {
-        if (err.name === 'ValidationError') {
-          next(new BadRequest(validationErrTxt));
-        } return next(err);
-      });
+        }));
   })
     .catch(next);
 };
