@@ -1,5 +1,5 @@
 const {
-  DB = 'mongodb://localhost:27017/moviesdb',
+  DB = 'mongodb://localhost:27017/moviesExplorerDB',
   PORT = 3008,
   JWT_SECRET = 'my-super-duper-secret',
   NODE_ENV,

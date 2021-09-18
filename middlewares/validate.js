@@ -1,10 +1,10 @@
 const { celebrate, Joi } = require('celebrate');
-const validator = require('validator');
+const { isURL } = require('validator');
 const BadRequest = require('../errors/BadRequest');
 const { validationErrTxt } = require('../utils/errorMessages');
 
 const validateURL = (val) => {
-  const res = validator.isURL(val);
+  const res = isURL(val);
   if (res) {
     return val;
   }
@@ -35,17 +35,16 @@ const validateUpdateProfile = celebrate({
 
 const validatePostMovie = celebrate({
   body: Joi.object().keys({
-    country: Joi.string().min(2).max(30).required(),
-    director: Joi.string().required().min(2)
-      .max(30),
-    duration: Joi.number().min(1).required(),
-    year: Joi.string().min(4).max(4).required(),
-    description: Joi.string().min(2).max(30).required(),
+    country: Joi.string().required(),
+    director: Joi.string().required(),
+    duration: Joi.number().required(),
+    year: Joi.string().required(),
+    description: Joi.string().required(),
     image: Joi.string().required().custom(validateURL),
     trailer: Joi.string().required().custom(validateURL),
     thumbnail: Joi.string().required().custom(validateURL),
-    nameRU: Joi.string().min(2).max(30).required(),
-    nameEN: Joi.string().min(2).max(30).required(),
+    nameRU: Joi.string().required(),
+    nameEN: Joi.string().required(),
     movieId: Joi.number().min(1).required(),
   }),
 });

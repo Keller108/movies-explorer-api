@@ -10,7 +10,8 @@ const {
 } = require('../utils/errorMessages');
 
 const getMovies = (req, res, next) => {
-  Movie.find({})
+  const owner = req.body._id;
+  Movie.find({ owner })
     .then((movies) => {
       res.status(200).send(movies);
     })
