@@ -45,7 +45,7 @@ const validatePostMovie = celebrate({
     thumbnail: Joi.string().required().custom(validateURL),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
-    movieId: Joi.number().min(1).required(),
+    movieId: Joi.number().required(),
   }),
 });
 
